@@ -21,8 +21,18 @@ LAG(total_sales) over(order by year) as prev_year_sales
 from sales_data
 )
 
-
 select *,
 (total_sales-prev_year_sales)/ cast(prev_year_sales as float) *100 as yoy_growth_pct
 from cte;
 
+-- Handling edge case___
+With CTE_1 AS
+(
+select year,total_sales,
+lag(total_sales) over(order by year) as prev_year_sales from sales_data
+)
+
+select year, total_sales,prev_year_sales,
+case when prev_year_sales is null or prev_year_sales=0 then Null
+     else (total_sales-prev_year_sales)/cast(prev_year_sales as float)* 100 END AS yoy_growth_pct
+from CTE_1;
